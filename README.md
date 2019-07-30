@@ -33,4 +33,5 @@ PGP set up - doing so is outside of the scope of this documentation).
 
 # Credits
 
-Thanks to [@kyles-ep] for the initial `arm64` setup!
+Thanks to [@kyles-ep](https://github.com/kyles-ep/) for the
+initial `arm64` setup!
