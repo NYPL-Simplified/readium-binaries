@@ -1,0 +1,4 @@
+.gradle
+build
+java/org.librarysimplified.readium.shared_js/src/main/resources
+java/org.librarysimplified.readium/src
