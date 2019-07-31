@@ -79,7 +79,7 @@ apply plugin: "io.codearte.nexus-staging"
 apply plugin: "com.vanniktech.android.junit.jacoco"
 
 nexusStaging {
-  packageGroup = "au.org.libraryforall"
+  packageGroup = "org.librarysimplified"
   numberOfRetries = 32
   delayBetweenRetriesInMillis = 2000
 }
