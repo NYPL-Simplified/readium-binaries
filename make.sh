@@ -125,7 +125,7 @@ export NDK_PROJECT_PATH=$(realpath .) || fatal "could not determine project path
   || fatal "could not build code"
 
 #------------------------------------------------------------------------
-# Extract the native libraries
+# Extract the native libraries and headers
 
 info "copying native code"
 
@@ -144,6 +144,11 @@ mkdir -p lib/armeabi-v7a || fatal "could not create directory"
 mkdir -p lib/x86         || fatal "could not create directory"
 mkdir -p lib/arm64-v8a   || fatal "could not create directory"
 
+rm lib/armv7a ||
+  fatal "could not remove symlink"
+ln -s armeabi-v7a lib/armv7a ||
+  fatal "could not symlink lib/armeabi-v7a <- lib/armv7a"
+
 copyFile ./readium-sdk/Platform/Android/epub3/libs/armeabi-v7a/libc++_shared.so lib/armeabi-v7a/
 copyFile ./readium-sdk/Platform/Android/epub3/libs/armeabi-v7a/libepub3.so      lib/armeabi-v7a/
 copyFile ./readium-sdk/Platform/Android/epub3/libs/x86/libc++_shared.so         lib/x86/
@@ -151,8 +156,7 @@ copyFile ./readium-sdk/Platform/Android/epub3/libs/x86/libepub3.so              
 copyFile ./readium-sdk/Platform/Android/epub3/libs/arm64-v8a/libc++_shared.so   lib/arm64-v8a/
 copyFile ./readium-sdk/Platform/Android/epub3/libs/arm64-v8a/libepub3.so        lib/arm64-v8a/
 
-ln -s armeabi-v7a lib/armv7a ||
-  fatal "could not symlink lib/armeabi-v7a <- lib/armv7a"
+copyDirectoryHierarchy ./readium-sdk/Platform/Android/epub3/include/ include/
 
 #------------------------------------------------------------------------
 # Compile the shared JS
@@ -193,6 +197,9 @@ cd "${CURRENT_DIRECTORY}" ||
 copyDirectoryHierarchy \
   ./readium-sdk/Platform/Android/lib/src/ \
   java/org.librarysimplified.readium/src/
+
+rm -rfv java/org.librarysimplified.readium/src/main/jniLibs ||
+  fatal "could not remove jniLibs directory"
 
 copyDirectoryHierarchy \
   ./lib/ \
