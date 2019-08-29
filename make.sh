@@ -151,6 +151,9 @@ copyFile ./readium-sdk/Platform/Android/epub3/libs/x86/libepub3.so              
 copyFile ./readium-sdk/Platform/Android/epub3/libs/arm64-v8a/libc++_shared.so   lib/arm64-v8a/
 copyFile ./readium-sdk/Platform/Android/epub3/libs/arm64-v8a/libepub3.so        lib/arm64-v8a/
 
+ln -s armeabi-v7a lib/armv7a ||
+  fatal "could not symlink lib/armeabi-v7a <- lib/armv7a"
+
 #------------------------------------------------------------------------
 # Compile the shared JS
 
