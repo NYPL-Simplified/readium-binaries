@@ -42,6 +42,22 @@ ext {
     logger.warn("No nexusPassword property specified: Using an empty value")
     nexusPassword = ""
   }
+
+  if (!project.hasProperty("org.librarysimplified.nexus.publish")) {
+    logger.warn("org.librarysimplified.nexus.publish is not set: We will publish artifacts to Maven Central")
+    useNYPLNexusPublish = false
+  } else {
+    logger.warn("org.librarysimplified.nexus.publish is set: We will publish artifacts to the NYPL Nexus")
+    useNYPLNexusPublish = true
+  }
+
+  if (!project.hasProperty("org.librarysimplified.nexus.depend")) {
+    logger.warn("org.librarysimplified.nexus.depend is not set: We will not depend on artifacts the NYPL Nexus")
+    useNYPLNexusDepend = false
+  } else {
+    logger.warn("org.librarysimplified.nexus.depend is set: We will depend artifacts on the NYPL Nexus")
+    useNYPLNexusDepend = true
+  }
 }
 
 ext.libraries = [
@@ -243,14 +259,29 @@ Automatic-Module-Name: ${POM_AUTOMATIC_MODULE_NAME}
     }
 
     repositories {
-      maven {
-        def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-        def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-        url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+      if (useNYPLNexusPublish) {
+        logger.info("using NYPL Nexus repository for publication")
 
-        credentials(PasswordCredentials) {
-          username nexusUsername
-          password nexusPassword
+        maven {
+          def releasesRepoUrl = "https://nexus.librarysimplified.org:8443/nexus/content/repositories/releases-no-drm/"
+          def snapshotsRepoUrl = "https://nexus.librarysimplified.org:8443/nexus/content/repositories/snapshots-no-drm/"
+          url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+          credentials(PasswordCredentials) {
+            username findProperty("org.librarysimplified.nexus.username")
+            password findProperty("org.librarysimplified.nexus.password")
+          }
+        }
+      } else {
+        logger.info("using Maven Central repository for publication")
+
+        maven {
+          def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+          def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+          url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+          credentials(PasswordCredentials) {
+            username nexusUsername
+            password nexusPassword
+          }
         }
       }
     }
@@ -264,8 +295,18 @@ Automatic-Module-Name: ${POM_AUTOMATIC_MODULE_NAME}
   repositories {
     mavenCentral()
     mavenLocal()
+
+    if (useNYPLNexusDepend) {
+      maven {
+        credentials {
+          username findProperty("org.librarysimplified.nexus.username")
+          password findProperty("org.librarysimplified.nexus.password")
+        }
+        url "https://nexus.librarysimplified.org:8443/nexus/content/groups/external/"
+      }
+    }
+
     jcenter()
     google()
   }
 }
-
